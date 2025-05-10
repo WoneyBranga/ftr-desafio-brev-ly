@@ -1,1 +1,1 @@
-CREATE DATABASE upload_test;
+CREATE DATABASE brev_ly;
