@@ -1,6 +1,11 @@
 # REST API test file
 
 ###
-GET http://localhost:3333/create-url HTTP/1.1
+POST http://localhost:3333/create-url HTTP/1.1
 Accept: application/json
 Content-Type: application/json
+
+{
+    "originalUrl": "https://example.com",
+    "shortUrl": "https://short.ly/abc123"
+}
