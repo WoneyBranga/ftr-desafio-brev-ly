@@ -1,3 +1,4 @@
+import { createLink } from '@/app/functions/create-link'
 import { or } from 'drizzle-orm'
 import type { FastifyPluginAsyncZod } from 'fastify-type-provider-zod'
 import { z } from 'zod'
@@ -22,6 +23,19 @@ export const createUrlRoute: FastifyPluginAsyncZod = async server => {
       },
     },
     async (request, reply) => {
+      const { originalUrl, shortUrl, accessCount, createdAt } =
+        request.body as {
+          originalUrl: string
+          shortUrl?: string
+          accessCount?: number
+          createdAt?: string
+        }
+
+      createLink({
+        originalUrl,
+        shortUrl,
+      })
+
       return reply.status(201).send({ linkId: '123' })
     }
   )
