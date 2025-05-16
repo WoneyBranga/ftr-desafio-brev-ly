@@ -7,7 +7,17 @@ Content-Type: application/json
 
 {
     "originalUrl": "https://example.com",
-    "shortUrl": "https://short.ly/abc12ss"
+    "shortUrl": "https://short.ly/{{$guid}}"
+}
+
+###
+POST http://localhost:3333/create-url HTTP/1.1
+Accept: application/json
+Content-Type: application/json
+
+{
+    "originalUrl": "https://example.com",
+    "shortUrl": "https://short.ly/{{$randomInt 1000 9999}}"
 }
 
 ###
@@ -16,3 +26,24 @@ Accept: application/json
 Content-Type: application/json
 
 {"originalUrl": "https://example.com"}
+
+
+###
+GET http://localhost:3333/links HTTP/1.1
+Accept: application/json
+Content-Type: application/json
+
+###
+GET http://localhost:3333/links
+?page=2
+&pageSize=3 HTTP/1.1
+Accept: application/json
+Content-Type: application/json
+
+###
+GET http://localhost:3333/links
+?page=1
+&shortUrlQuery=6c518dc7
+&pageSize=3 HTTP/1.1
+Accept: application/json
+Content-Type: application/json
