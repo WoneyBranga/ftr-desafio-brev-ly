@@ -25,7 +25,7 @@ export async function createLink(
 
   if (!shortUrl) {
     const generatedShortUrlUuid = uuidv7().slice(-8)
-    shortUrl = env.BASE_URL + '/' + generatedShortUrlUuid
+    shortUrl = `${env.BASE_URL}/${generatedShortUrlUuid}`
   }
 
   const existingShortLink = await db
