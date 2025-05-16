@@ -1,7 +1,7 @@
 ## Funcionalidades e Regras - backend
 
-- [ ] Deve-se utilizar postgres como db
-- [ ]  Deve ser possível criar um link
+- [x] Deve-se utilizar postgres como db
+- [x]  Deve ser possível criar um link
     - [ ]  Não deve ser possível criar um link com URL encurtada mal formatada
     - [ ]  Não deve ser possível criar um link com URL encurtada já existente
 - [ ]  Deve ser possível deletar um link

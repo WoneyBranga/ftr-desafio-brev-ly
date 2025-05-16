@@ -45,6 +45,9 @@ export const createUrlRoute: FastifyPluginAsyncZod = async server => {
         if (error.message === 'Link already exists') {
           return reply.status(409).send({ message: error.message })
         }
+        if (error.message === 'Invalid URL') {
+          return reply.status(400).send({ message: error.message })
+        }
         return reply.status(500).send({ message: 'Internal server error' })
       }
 

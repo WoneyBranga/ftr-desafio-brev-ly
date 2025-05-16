@@ -1,7 +1,9 @@
+import { env } from '@/env'
 import { db } from '@/infra/db'
 import { schema } from '@/infra/db/schemas'
 import { type Either, makeLeft, makeRight } from '@/shared/either'
 import { eq } from 'drizzle-orm'
+import { uuidv7 } from 'uuidv7'
 import { z } from 'zod'
 
 const linkInput = z.object({
@@ -14,16 +16,25 @@ type linkInput = z.input<typeof linkInput>
 export async function createLink(
   input: linkInput
 ): Promise<Either<Error, linkInput>> {
-  const { originalUrl, shortUrl } = linkInput.parse(input)
+  let { originalUrl, shortUrl } = linkInput.parse(input)
   const currentDate = new Date()
 
-  const existingLink = await db
+  if (!linkInput.shape.originalUrl.safeParse(originalUrl).success) {
+    return makeLeft(new Error('Invalid URL'))
+  }
+
+  if (!shortUrl) {
+    const generatedShortUrlUuid = uuidv7().slice(-8)
+    shortUrl = env.BASE_URL + '/' + generatedShortUrlUuid
+  }
+
+  const existingShortLink = await db
     .select()
     .from(schema.links)
-    .where(eq(schema.links.originalUrl, originalUrl))
+    .where(eq(schema.links.shortUrl, shortUrl))
     .limit(1)
 
-  if (existingLink.length > 0) {
+  if (existingShortLink.length > 0) {
     return makeLeft(new Error('Link already exists'))
   }
 
