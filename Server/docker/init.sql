@@ -1,1 +1,2 @@
-CREATE DATABASE brev_ly;
+CREATE DATABASE links;
+CREATE DATABASE links_test;
