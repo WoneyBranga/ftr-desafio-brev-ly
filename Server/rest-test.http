@@ -58,3 +58,13 @@ Content-Type: application/json
 ###
 DELETE http://localhost:3333/links/0196f31d-9436-70e8-bcd4-f7c576b37b57 HTTP/1.1
 Accept: application/json
+
+# Testando registro de visita a um link
+###
+POST http://localhost:3333/register-visit HTTP/1.1
+Accept: application/json
+Content-Type: application/json
+
+{
+  "shortUrl": "http://localhost:3333/0d587cf5"
+}
