@@ -1,6 +1,6 @@
-import { config } from 'dotenv'
 import { db } from '@/infra/db'
 import { schema } from '@/infra/db/schemas'
+import { config } from 'dotenv'
 import { afterAll, beforeAll, beforeEach } from 'vitest'
 
 // Carrega as variáveis de ambiente do arquivo .env.test
@@ -11,14 +11,22 @@ const isTestDatabase = process.env.DATABASE_URL?.includes('links_test')
 if (!isTestDatabase) {
   throw new Error(
     'Testes devem usar o banco de dados de teste (links_test)! ' +
-    'Verifique se DATABASE_URL em .env.test aponta para o banco correto.'
+      'Verifique se DATABASE_URL em .env.test aponta para o banco correto.'
   )
 }
 
-// Antes de todos os testes, criamos as tabelas necessárias
+// Variável para controlar inicialização
+let setupDone = false
+
 beforeAll(async () => {
+  // Evitar configuração duplicada
+  if (setupDone) return
+
+  console.log('Inicializando ambiente de teste...')
+  console.log('Usando banco de dados:', process.env.DATABASE_URL)
+
   try {
-    // Cria a tabela links caso não exista
+    // Criar tabela se não existir
     await db.execute(`
       CREATE TABLE IF NOT EXISTS links (
         id VARCHAR PRIMARY KEY,
@@ -28,25 +36,32 @@ beforeAll(async () => {
         created_at TIMESTAMP NOT NULL DEFAULT NOW()
       );
     `)
-    console.log('Tabela de links criada no banco de dados de teste')
+
+    // Limpar tabela
+    await db.delete(schema.links)
+    console.log('Tabela links limpa e pronta para testes')
+    setupDone = true
   } catch (error) {
-    console.error('Erro ao preparar o banco de dados para testes:', error)
+    console.error('Erro ao configurar banco de dados:', error)
     throw error
   }
 })
 
-// Antes de cada teste, limpamos os dados da tabela
+// Limpar tabela antes de cada teste
 beforeEach(async () => {
-  await db.delete(schema.links)
+  try {
+    await db.delete(schema.links)
+  } catch (error) {
+    console.error('Erro ao limpar tabela antes do teste:', error)
+  }
 })
 
-// Após todos os testes, podemos limpar completamente o banco
+// Limpar após todos os testes
 afterAll(async () => {
-  // Normalmente não droparíamos a tabela, apenas limparíamos os dados
-  // mas caso queira resetar completamente:
-  // await db.execute(`DROP TABLE IF EXISTS links;`)
-  
-  // Limpamos os dados
-  await db.delete(schema.links)
-  console.log('Tabela de links limpa após os testes')
+  console.log('Limpando ambiente após testes')
+  try {
+    await db.delete(schema.links)
+  } catch (error) {
+    console.error('Erro ao limpar tabela após testes:', error)
+  }
 })
