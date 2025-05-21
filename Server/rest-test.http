@@ -1,5 +1,6 @@
 # REST API test file
 
+# Testando a criacao um link
 ###
 POST http://localhost:3333/create-url HTTP/1.1
 Accept: application/json
@@ -10,6 +11,7 @@ Content-Type: application/json
     "shortUrl": "https://short.ly/{{$guid}}"
 }
 
+# Testando a criacao um link
 ###
 POST http://localhost:3333/create-url HTTP/1.1
 Accept: application/json
@@ -20,6 +22,7 @@ Content-Type: application/json
     "shortUrl": "https://short.ly/{{$randomInt 1000 9999}}"
 }
 
+# Testando a criacao um link sem informar o shortUrl
 ###
 POST http://localhost:3333/create-url HTTP/1.1
 Accept: application/json
@@ -28,11 +31,13 @@ Content-Type: application/json
 {"originalUrl": "https://example.com"}
 
 
+# Testando retorno de links
 ###
 GET http://localhost:3333/links HTTP/1.1
 Accept: application/json
 Content-Type: application/json
 
+# Testando retorno de links com paginação
 ###
 GET http://localhost:3333/links
 ?page=2
@@ -40,6 +45,7 @@ GET http://localhost:3333/links
 Accept: application/json
 Content-Type: application/json
 
+# Testando retorno de links com paginação e filtro
 ###
 GET http://localhost:3333/links
 ?page=1
@@ -47,3 +53,8 @@ GET http://localhost:3333/links
 &pageSize=3 HTTP/1.1
 Accept: application/json
 Content-Type: application/json
+
+# Testando deleção de um link
+###
+DELETE http://localhost:3333/links/0196f31d-9436-70e8-bcd4-f7c576b37b57 HTTP/1.1
+Accept: application/json
