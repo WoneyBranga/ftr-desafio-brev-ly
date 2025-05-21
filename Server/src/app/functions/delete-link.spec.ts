@@ -1,8 +1,6 @@
 import { env } from '@/env'
 import { isLeft, isRight } from '@/shared/either'
-import { uuid } from 'drizzle-orm/gel-core'
 import { describe, expect, it } from 'vitest'
-import { ZodError } from 'zod'
 import { createLink } from './create-link'
 import { deleteLink } from './delete-link'
 import { getLinks } from './get-links'
