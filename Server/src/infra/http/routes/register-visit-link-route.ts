@@ -10,7 +10,7 @@ export const registerVisitLinkRoute: FastifyPluginAsyncZod = async server => {
       schema: {
         summary: 'Register a visit to a link and increment its access counter',
         body: z.object({
-          shortUrl: z.string(),
+          id: z.string(),
         }),
         response: {
           200: z.object({
@@ -27,9 +27,9 @@ export const registerVisitLinkRoute: FastifyPluginAsyncZod = async server => {
       },
     },
     async (request, reply) => {
-      const { shortUrl } = request.body as { shortUrl: string }
+      const { id } = request.body as { id: string }
 
-      const result = await registerVisitLink({ shortUrl })
+      const result = await registerVisitLink({ id })
 
       if (isLeft(result)) {
         const error = result.left

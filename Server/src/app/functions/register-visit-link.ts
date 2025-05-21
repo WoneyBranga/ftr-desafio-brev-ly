@@ -5,7 +5,7 @@ import { eq, sql } from 'drizzle-orm'
 import { z } from 'zod'
 
 const registerVisitLinkInput = z.object({
-  shortUrl: z.string(),
+  id: z.string(),
 })
 
 type RegisterVisitLinkInput = z.input<typeof registerVisitLinkInput>
@@ -23,14 +23,14 @@ export async function registerVisitLink(
   input: RegisterVisitLinkInput
 ): Promise<Either<RegisterVisitLinkError, RegisterVisitLinkOutput>> {
   try {
-    const { shortUrl } = registerVisitLinkInput.parse(input)
+    const { id } = registerVisitLinkInput.parse(input)
 
     const result = await db
       .update(schema.links)
       .set({
         accessCount: sql`${schema.links.accessCount} + 1`,
       })
-      .where(eq(schema.links.shortUrl, shortUrl))
+      .where(eq(schema.links.id, id))
       .returning({
         originalUrl: schema.links.originalUrl,
         accessCount: schema.links.accessCount,

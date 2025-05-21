@@ -19,13 +19,13 @@ describe('register-visit-link', () => {
     let getResults = await getLinks({})
 
     let registerResult = await registerVisitLink({
-      shortUrl: getResults.right?.links[0].shortUrl ?? '',
+      id: getResults.right?.links[0].id ?? '',
     })
     expect(isRight(registerResult)).toBe(true)
     expect(registerResult.right?.accessCount).toBe(1)
 
     registerResult = await registerVisitLink({
-      shortUrl: getResults.right?.links[0].shortUrl ?? '',
+      id: getResults.right?.links[0].id ?? '',
     })
     getResults = await getLinks({})
     expect(isRight(registerResult)).toBe(true)
@@ -34,7 +34,7 @@ describe('register-visit-link', () => {
 
   it('should not be able to register a visit to a link that does not exist', async () => {
     const registerResult = await registerVisitLink({
-      shortUrl: '11111111-1111-1111-1111-111111111111',
+      id: '11111111-1111-1111-1111-111111111111',
     })
 
     expect(isLeft(registerResult)).toBe(true)
