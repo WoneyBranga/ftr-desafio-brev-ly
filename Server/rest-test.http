@@ -68,3 +68,9 @@ Content-Type: application/json
 {
   "shortUrl": "http://localhost:3333/0d587cf5"
 }
+
+# Testando exportação de links para CSV
+###
+GET http://localhost:3333/export-csv HTTP/1.1
+Accept: application/json
+Content-Type: application/json
