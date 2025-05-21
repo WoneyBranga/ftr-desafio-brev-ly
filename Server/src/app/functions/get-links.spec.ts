@@ -3,7 +3,6 @@ import { isLeft, isRight } from '@/shared/either'
 import { describe, expect, it } from 'vitest'
 import { createLink } from './create-link'
 import { getLinks } from './get-links'
-import { registerVisitLink } from './register-visit-link'
 
 describe('get-links', () => {
   it('should use test database', () => {
