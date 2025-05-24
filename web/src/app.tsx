@@ -4,7 +4,7 @@ export function App() {
   return (
 
 
-    <h1>
+    <h1 className="bg-blue-base">
       Hello World
     </h1>
 
