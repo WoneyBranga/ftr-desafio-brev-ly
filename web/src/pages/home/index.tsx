@@ -4,6 +4,7 @@ import { type FormEvent } from 'react'
 import axios from 'axios'
 import logo from '../../assets/logo-brev-ly.svg'
 import { api } from '../../lib/api'
+import { useNavigate } from 'react-router-dom'
 
 interface Link {
     id: string
@@ -19,13 +20,13 @@ export function Home() {
     const [shortUrl, setShortUrl] = useState('')
     const [isFormValid, setIsFormValid] = useState(false)
     const [error, setError] = useState('')
+    const navigate = useNavigate()
 
     useEffect(() => {
         fetchLinks()
     }, [])
 
     useEffect(() => {
-        // Valida o formulário sempre que os inputs mudarem
         setIsFormValid(!!originalUrl && originalUrl.includes('.'))
     }, [originalUrl, shortUrl])
 
@@ -33,17 +34,14 @@ export function Home() {
         setIsLoading(true)
         try {
             const response = await api.get('/links')
-            // A API retorna os links dentro de uma propriedade "links"
+
             if (response.data && response.data.links) {
                 setLinks(response.data.links)
-                console.log('Links carregados:', response.data.links)
             } else {
                 setLinks([])
-                console.log('Nenhum link encontrado ou formato inesperado:', response.data)
             }
             setError('')
         } catch (err) {
-            console.error('Erro ao buscar links:', err)
             setError('Falha ao carregar os links. Tente novamente.')
         } finally {
             setIsLoading(false)
@@ -59,18 +57,15 @@ export function Home() {
             setIsLoading(true)
             await api.post('/create-url', {
                 originalUrl: originalUrl,
-                shortUrl: shortUrl || undefined // Envia undefined se estiver vazio para a API gerar um código
+                shortUrl: shortUrl || undefined
             })
 
-            // Limpa o formulário
             setOriginalUrl('')
             setShortUrl('')
 
-            // Recarrega os links
             await fetchLinks()
             setError('')
         } catch (err) {
-            console.error('Erro ao criar link:', err)
             setError('Falha ao criar o link. Tente novamente.')
         } finally {
             setIsLoading(false)
@@ -80,14 +75,10 @@ export function Home() {
     async function handleDeleteLink(id: string) {
         try {
             setIsLoading(true)
-            // Corrigindo a rota: usando /{id} em vez de /links/{id}
             await api.delete(`/links/${id}`)
-            // Recarrega os links
             await fetchLinks()
             setError('')
         } catch (err) {
-            console.error('Erro ao excluir link:', err)
-            // Mostra detalhes mais específicos do erro
             if (axios.isAxiosError(err)) {
                 setError(`Falha ao excluir o link: ${err.response?.status} ${err.response?.statusText}`)
             } else {
@@ -99,13 +90,12 @@ export function Home() {
     }
 
     function handleCopyLink(shortUrl: string) {
-        // Extrai o código curto da URL completa (remove o "brev.ly/")
-        const shortCode = shortUrl.replace('brev.ly/', '')
-        const fullUrl = `http://localhost:3333/${shortCode}`
+        const shortCode = shortUrl.split('/').pop()
+
+        const fullUrl = `http://localhost:5173/${shortCode}`
 
         navigator.clipboard.writeText(fullUrl)
             .then(() => {
-                // Poderíamos adicionar uma notificação de sucesso aqui
                 alert('Link copiado para a área de transferência!')
             })
             .catch((err) => {
@@ -114,9 +104,34 @@ export function Home() {
             })
     }
 
-    function handleDownloadCSV() {
-        // Abre uma nova janela com o endpoint de exportação
-        window.open('http://localhost:3333/export-csv', '_blank')
+    async function handleDownloadCSV() {
+        try {
+            setIsLoading(true);
+            const response = await api.get('/export-csv');
+
+            if (response.data && response.data.reportUrl) {
+                // Cria um elemento <a> temporário para iniciar o download
+                const link = document.createElement('a');
+                link.href = response.data.reportUrl;
+                link.setAttribute('download', 'links-report.csv');
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                setError('');
+            } else {
+                setError('Não foi possível gerar o relatório CSV.');
+            }
+        } catch (err) {
+            console.error('Erro ao baixar CSV:', err);
+            setError('Falha ao baixar o relatório CSV.');
+        } finally {
+            setIsLoading(false);
+        }
+    }
+
+    function handleLinkClick(link: Link) {
+        const shortCode = link.shortUrl.split('/').pop()
+        navigate(`/${shortCode}`)
     }
 
     return (
@@ -135,7 +150,7 @@ export function Home() {
 
                 <div className="grid grid-cols-1 lg:grid-cols-5 gap-4 max-w-7xl mx-auto mt-8">
 
-                    {/* form - 40% do espaço em desktop */}
+                    {/* form */}
                     <form onSubmit={handleCreateLink} className="bg-white flex flex-col justify-start p-6 rounded-lg lg:col-span-2">
                         <h2 className="text-lg text-gray-600 mb-4">Novo Link</h2>
                         <label className="text-gray-500 text-xs my-2" htmlFor="original-link">LINK ORIGINAL</label>
@@ -166,7 +181,7 @@ export function Home() {
                         </button>
                     </form>
 
-                    {/* lista - 60% do espaço em desktop */}
+                    {/* lista */}
                     <div className="bg-white flex flex-col justify-start p-6 rounded-lg lg:col-span-3">
                         <div className="flex items-center justify-between mb-4">
                             <h2 className="text-lg text-gray-600">Meus Links</h2>
@@ -187,16 +202,14 @@ export function Home() {
                             </div>
                         ) : links.length > 0 ? (
                             <div className="mt-4 space-y-4">
-                                {/* Lista de links aqui */}
-
+                                {/* Lista de links */}
                                 {links.map((link) => (
                                     <div key={link.id} className="flex flex-row items-center justify-between p-2 border-b border-gray-200">
-                                        <div className="flex flex-col">
-
-                                            <span className="text-md text-blue-base max-w-[150px] sm:max-w-xs truncate block">{link.originalUrl}</span>
+                                        <div className="flex flex-col cursor-pointer" onClick={() => handleLinkClick(link)}>
+                                            <span className="text-md text-blue-base max-w-[150px] sm:max-w-xs truncate block hover:underline">{link.originalUrl}</span>
                                             <span className="text-sm text-gray-500 max-w-[150px] sm:max-w-xs truncate block">{link.shortUrl}</span>
                                         </div>
-                                        <div className="flex flex-row items-center gap-1 ">
+                                        <div className="flex flex-row items-center justify-center gap-1">
                                             <span className="text-sm text-gray-500 mr-4">{link.accessCount} cliques</span>
                                             <button
                                                 className="flex flex-row items-center gap-2 bg-gray-200 p-2 px-3 rounded text-gray-600 hover:bg-gray-200 transition-colors"
